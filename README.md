@@ -31,6 +31,24 @@
 $ yarn install
 ```
 
+## Environment variables
+
+Copy the sample file and adjust values to match your environment.
+
+```bash
+$ cp .env.example .env
+```
+
+The application currently reads `PORT` to decide which port to bind in `start`/`start:dev` mode.
+
+Additional keys used by feature modules:
+
+- `ORDERS_LIST_LIMIT`: limits the number of in-memory orders returned when no remote source is configured.
+- `ORDERS_API_URL`: base URL used by the shared Axios client (`OrdersService` and others).
+- `ORDERS_REMOTE_ENABLED`: set to `true` to fetch orders from the remote API instead of the in-memory list.
+- `ORDERS_REMOTE_PATH`: path (relative to `ORDERS_API_URL`) fetched when remote calls are enabled.
+- `HTTP_TIMEOUT_MS`: request timeout (ms) for the shared Axios client.
+
 ## Compile and run the project
 
 ```bash

@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import type { AxiosInstance } from 'axios';
+import { AXIOS_INSTANCE } from '../common/http/axios.provider';
 
 @Injectable()
 export class OrdersService {
-  findAll(): string[] {
-    // Placeholder implementation; replace with real data source integration.
-    return ['order-1', 'order-2'];
-  }
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject(AXIOS_INSTANCE) private readonly http: AxiosInstance,
+  ) {}
+
+  async findAll(): Promise<string[]> {}
 }
