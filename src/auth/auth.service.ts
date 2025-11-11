@@ -29,7 +29,7 @@ export class AuthService {
     const timestamp = Date.now();
     const signature = this.generateSignature(timestamp);
 
-    const param = {
+    const payload = {
       client_id: this.clientId,
       timestamp: timestamp,
       grant_type: 'client_credentials',
@@ -40,7 +40,10 @@ export class AuthService {
     try {
       const res = await this.http.post<TokenResponse>(
         NAVER_COMMERCE_API.AUTH.TOKEN_URL,
-        param,
+        payload,
+        {
+          headers: { 'x-skip-auth': 'true' },
+        },
       );
       const { access_token } = res.data;
       this.accessToken = access_token;
@@ -64,6 +67,10 @@ export class AuthService {
     this.http.interceptors.request.use(
       // 매 요청전에 인증 호출
       async (config: InternalAxiosRequestConfig) => {
+        if (config.headers?.['x-skip-auth']) {
+          return config;
+        }
+
         await this.requestToken();
         if (this.accessToken) {
           config.headers = config.headers ?? {};
