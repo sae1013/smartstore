@@ -15,6 +15,14 @@ export class OrdersService {
     @Inject(AXIOS_INSTANCE) private readonly http: AxiosInstance,
   ) {}
 
+  /**
+   * 자동화의 시작지점
+   */
+  async processOrders() {
+    const paidOrderIds = await this.findLastChangedOrders();
+    const ordersInfo = await this.getOrdersInfo(paidOrderIds);
+  }
+
   async findLastChangedOrders() {
     const params = {
       lastChangedFrom: this.getLastChangedFrom(),
@@ -28,9 +36,9 @@ export class OrdersService {
       );
       const lastChangeStatuses: OrderInfo[] =
         response.data?.data?.lastChangeStatuses;
-      console.log(lastChangeStatuses);
+
       const paidOrderIds = this.getPaidOrderIds(lastChangeStatuses);
-      await this.processOrders(paidOrderIds);
+      return paidOrderIds;
     } catch (err) {
       console.log('minwooerr', err);
     }
@@ -63,6 +71,7 @@ export class OrdersService {
         },
       );
       console.log(response.data.data);
+      return response.data.data;
     } catch (err) {
       console.error(err);
     }
@@ -73,7 +82,7 @@ export class OrdersService {
    * @private
    */
   private getLastChangedFrom() {
-    const thirtyMinutesAgo = subMinutes(new Date(), 60);
+    const thirtyMinutesAgo = subMinutes(new Date(), 240);
     return formatInTimeZone(
       thirtyMinutesAgo,
       'Asia/Seoul',

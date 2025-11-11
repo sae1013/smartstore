@@ -10,4 +10,10 @@ export class OrdersController {
     await this.ordersService.findLastChangedOrders();
     return 'hello world';
   }
+
+  @Get('/orders/process-auto')
+  async processAuto() {
+    await this.ordersService.processOrders();
+    return 'hello world';
+  }
 }
