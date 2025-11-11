@@ -8,6 +8,26 @@ export interface OrderInfo {
   receiverAddressChanged: boolean;
 }
 
+export interface SmartstoreResponse<TData> {
+  code: string;
+  message: string;
+  data: TData;
+}
+
+export interface LastChangedStatus {
+  lastChangeStatuses: OrderInfo[];
+  more?: {
+    moreFrom: string;
+    moreSequence: string;
+  };
+}
+
+export interface OrderDetail {
+  order: Record<string, unknown>;
+  productOrder: Record<string, unknown>;
+}
+
+export type OrderDetailResponse = SmartstoreResponse<OrderDetail[]>;
 
 /**
 

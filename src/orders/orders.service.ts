@@ -4,7 +4,12 @@ import type { AxiosInstance } from 'axios';
 import { subMinutes } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { AXIOS_INSTANCE } from '../common/http/axios.provider';
-import { OrderInfo } from './types';
+import {
+  LastChangedStatus,
+  OrderDetail,
+  SmartstoreResponse,
+  OrderInfo,
+} from './types';
 
 // import { NAVER_COMMERCE_API } from '../common/utils';
 
@@ -20,48 +25,52 @@ export class OrdersService {
    */
   async processOrders() {
     const paidOrderIds = await this.findLastChangedOrders();
+    if (!paidOrderIds.length) {
+      return;
+    }
     const ordersInfo = await this.getOrdersInfo(paidOrderIds);
+
+    return ordersInfo;
   }
 
-  async findLastChangedOrders() {
+  async findLastChangedOrders(): Promise<string[]> {
     const params = {
       lastChangedFrom: this.getLastChangedFrom(),
     };
     try {
-      const response = await this.http.get(
-        '/v1/pay-order/seller/product-orders/last-changed-statuses',
-        {
-          params,
-        },
-      );
+      const response = await this.http.get<
+        SmartstoreResponse<LastChangedStatus>
+      >('/v1/pay-order/seller/product-orders/last-changed-statuses', {
+        params,
+      });
       const lastChangeStatuses: OrderInfo[] =
-        response.data?.data?.lastChangeStatuses;
+        response.data.data?.lastChangeStatuses ?? [];
 
-      const paidOrderIds = this.getPaidOrderIds(lastChangeStatuses);
-      return paidOrderIds;
+      return this.getPaidOrderIds(lastChangeStatuses);
     } catch (err) {
       console.log('minwooerr', err);
+      return [];
     }
   }
 
   getPaidOrderIds(orderInfoList: OrderInfo[]) {
-    return (
-      orderInfoList
-        .filter((x) => x.lastChangedType === 'PAYED')
-        .map((x) => x.productOrderId) || []
-    );
+    return orderInfoList
+      .filter((x) => x.lastChangedType === 'PAYED')
+      .map((x) => x.productOrderId);
   }
 
   /**
-   * 상품 상세내역 조회
-   * @param productOrderIds: 주문 상품 배열
+   * 상품 상세조회
+   * @param productOrderIds
    */
-  async getOrdersInfo(productOrderIds: string[]) {
+  async getOrdersInfo(
+    productOrderIds: string[],
+  ): Promise<OrderDetail[] | undefined> {
     const payload = {
       productOrderIds,
     };
     try {
-      const response = await this.http.post(
+      const response = await this.http.post<SmartstoreResponse<OrderDetail[]>>(
         '/v1/pay-order/seller/product-orders/query',
         payload,
         {
@@ -70,10 +79,10 @@ export class OrdersService {
           },
         },
       );
-      console.log(response.data.data);
       return response.data.data;
     } catch (err) {
       console.error(err);
+      return undefined;
     }
   }
 
