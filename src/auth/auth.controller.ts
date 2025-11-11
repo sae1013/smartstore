@@ -6,17 +6,12 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('/auth/request/token')
-  async getAuthtoken() {
-    await this.authService.requestToken();
+  getAuthtoken() {
+    this.authService.requestToken();
     return {
       data: {
         name: 'jmw93',
       },
     };
-  }
-
-  @Post('/auth/smartstore/token')
-  requestSmartstoreToken() {
-    return 'hello world';
   }
 }

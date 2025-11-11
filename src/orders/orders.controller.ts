@@ -1,12 +1,13 @@
 import { Controller, Get } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 
-@Controller('orders')
+@Controller()
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  @Get()
-  findAll(): string {
+  @Get('/orders/last-changed-orders')
+  async findAll() {
+    await this.ordersService.findLastChangedOrders();
     return 'hello world';
   }
 }

@@ -1,18 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { AXIOS_INSTANCE } from '../common/http/axios.provider';
-import type { AxiosInstance } from 'axios';
 import { NAVER_COMMERCE_API } from '../common/utils';
-// export interface SmartstoreCredentials {
-//   clientId: string;
-//   clientSecret: string;
-// }
+
+export interface TokenResponse {
+  access_token: string;
+}
 
 @Injectable()
 export class AuthService {
   clientId: string;
   clientSecret: string;
+  private accessToken: string | null = null;
 
   constructor(
     private readonly configService: ConfigService,
@@ -21,6 +22,7 @@ export class AuthService {
     this.clientId = this.configService.get<string>('STORE_APP_ID') || '';
     this.clientSecret =
       this.configService.get<string>('STORE_APP_SECRET') || '';
+    this.registerAuthInterceptor();
   }
 
   async requestToken() {
@@ -34,12 +36,16 @@ export class AuthService {
       client_secret_sign: signature,
       type: 'SELF',
     };
+
     try {
-      const res = await this.http.post(
+      const res = await this.http.post<TokenResponse>(
         NAVER_COMMERCE_API.AUTH.TOKEN_URL,
         param,
       );
-      const { access_token, refrsh_token } = res.data;
+      const { access_token } = res.data;
+      this.accessToken = access_token;
+      console.log(access_token);
+      return this.accessToken;
     } catch (err: unknown) {
       console.error(err);
     }
@@ -52,5 +58,19 @@ export class AuthService {
       bcrypt.hashSync(password, this.clientSecret),
       'utf-8',
     ).toString('base64');
+  }
+
+  private registerAuthInterceptor() {
+    this.http.interceptors.request.use(
+      // 매 요청전에 인증 호출
+      async (config: InternalAxiosRequestConfig) => {
+        await this.requestToken();
+        if (this.accessToken) {
+          config.headers = config.headers ?? {};
+          config.headers.Authorization = `Bearer ${this.accessToken}`;
+        }
+        return config;
+      },
+    );
   }
 }
