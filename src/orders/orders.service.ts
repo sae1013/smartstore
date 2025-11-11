@@ -11,7 +11,7 @@ export class OrdersService {
     @Inject(AXIOS_INSTANCE) private readonly http: AxiosInstance,
   ) {}
 
-  async findAll(): Promise<string[]> {
+  async findAll() {
     try {
       const response = await this.http.get(NAVER_COMMERCE_API.AUTH.TOKEN_URL);
       console.log(response);
