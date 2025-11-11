@@ -7,13 +7,25 @@ export class OrdersController {
 
   @Get('/orders/last-changed-orders')
   async findAll() {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await this.ordersService.findLastChangedOrders();
-    return 'hello world';
+    return {
+      data: {
+        msg: 'success',
+        code: 200,
+      },
+    };
   }
 
   @Get('/orders/process-auto')
   async processAuto() {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await this.ordersService.processOrders();
-    return 'hello world';
+    return {
+      data: {
+        msg: 'success',
+        code: 200,
+      },
+    };
   }
 }

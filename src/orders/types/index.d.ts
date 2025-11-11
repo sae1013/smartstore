@@ -22,9 +22,24 @@ export interface LastChangedStatus {
   };
 }
 
+export interface IOrderDetail {
+  orderId: string; // 2025111139447091
+  ordererNo: string; // 204154814
+  ordererId: string; // jmw9****
+  orderName: string; // 정민우
+  ordererTel: string; // 010-8361-9220
+}
+
+export interface IProductOrderDetail {
+  quantity: number; // 2
+  productOrderStatus: string; // PAYED
+  productOption: string; // 상품코드를 받으실 이메일: sae1013@gmail.com / 금액: 195 루피
+  productName: string; // 애플 인도 앱스토어 아이튠즈 기프트카드 (리딤코드 발송)
+}
+
 export interface OrderDetail {
-  order: Record<string, unknown>;
-  productOrder: Record<string, unknown>;
+  order: IOrderDetail;
+  productOrder: IProductOrderDetail;
 }
 
 export type OrderDetailResponse = SmartstoreResponse<OrderDetail[]>;

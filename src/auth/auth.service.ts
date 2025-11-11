@@ -47,10 +47,10 @@ export class AuthService {
       );
       const { access_token } = res.data;
       this.accessToken = access_token;
-      console.log(access_token);
+      console.log('requestToken:', access_token);
       return this.accessToken;
     } catch (err: unknown) {
-      console.error(err);
+      console.error('requestToken:', err);
     }
   }
 

@@ -7,11 +7,6 @@ export class AuthController {
 
   @Get('/auth/request/token')
   getAuthtoken() {
-    this.authService.requestToken();
-    return {
-      data: {
-        name: 'jmw93',
-      },
-    };
+    return this.authService.requestToken();
   }
 }

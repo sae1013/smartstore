@@ -10,8 +10,7 @@ import {
   SmartstoreResponse,
   OrderInfo,
 } from './types';
-
-// import { NAVER_COMMERCE_API } from '../common/utils';
+import { parseProductOption } from '../common/utils';
 
 @Injectable()
 export class OrdersService {
@@ -24,18 +23,32 @@ export class OrdersService {
    * 자동화의 시작지점
    */
   async processOrders() {
+    // STEP 1
+    // 최근 주문목록들의 주문 ID 배열을 가져온다
     const paidOrderIds = await this.findLastChangedOrders();
     if (!paidOrderIds.length) {
       return;
     }
-    const ordersInfo = await this.getOrdersInfo(paidOrderIds);
+
+    // STEP 2
+    // 결제된 항목들의 Order List를 가져온다.
+    const ordersInfo: OrderDetail[] = await this.getOrdersInfo(paidOrderIds);
+    console.log('ordersInfo:', ordersInfo);
+
+    // STEP 3
+    // orders info 를 순회한다.
+    ordersInfo.forEach((orderInfo) => {
+      const { orderName, ordererId } = orderInfo.order;
+      const { quantity, productName, productOption } = orderInfo.productOrder;
+      const { amount, email } = parseProductOption(productOption);
+    });
 
     return ordersInfo;
   }
 
   async findLastChangedOrders(): Promise<string[]> {
     const params = {
-      lastChangedFrom: this.getLastChangedFrom(),
+      lastChangedFrom: this.getLastChangedFrom(720),
     };
     try {
       const response = await this.http.get<
@@ -63,9 +76,7 @@ export class OrdersService {
    * 상품 상세조회
    * @param productOrderIds
    */
-  async getOrdersInfo(
-    productOrderIds: string[],
-  ): Promise<OrderDetail[] | undefined> {
+  async getOrdersInfo(productOrderIds: string[]): Promise<OrderDetail[] | []> {
     const payload = {
       productOrderIds,
     };
@@ -79,21 +90,24 @@ export class OrdersService {
           },
         },
       );
-      return response.data.data;
+      return response.data.data || [];
     } catch (err) {
       console.error(err);
-      return undefined;
+      return [];
     }
   }
 
   /**
-   * 30 분 전 시간을 구하는 로직
+   * N 분전 시간을 string으로변환
+   * @param minutes
    * @private
    */
-  private getLastChangedFrom() {
-    const thirtyMinutesAgo = subMinutes(new Date(), 240);
+  private getLastChangedFrom(minutes: number): string {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
+    const N_minutesAgo: Date = subMinutes(new Date(), minutes);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
     return formatInTimeZone(
-      thirtyMinutesAgo,
+      N_minutesAgo,
       'Asia/Seoul',
       "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
     );
