@@ -26,7 +26,7 @@ export interface IOrderDetail {
   orderId: string; // 2025111139447091
   ordererNo: string; // 204154814
   ordererId: string; // jmw9****
-  orderName: string; // 정민우
+  ordererName: string; // 정민우
   ordererTel: string; // 010-8361-9220
 }
 

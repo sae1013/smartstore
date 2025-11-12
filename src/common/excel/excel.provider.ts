@@ -27,6 +27,8 @@ export interface ExcelReader {
     filePath?: string,
     options?: ExcelReadOptions,
   ): Promise<T[]>;
+
+  writeRows(targetRow: number, ...args): Promise<number>;
 }
 
 export const EXCEL_READER = Symbol('EXCEL_READER');
@@ -51,7 +53,6 @@ export const excelReaderProvider: Provider = {
     });
 
     const readRows = async <T extends ExcelRow = ExcelRow>() => {
-      console.log('here???');
       const context = await sheets.spreadsheets.values.get({
         spreadsheetId: '1QHdgdW6bAVw6EDcTC3odAeVSyq9vONBPJU47-pMwt-8',
         range: '시트1!A2:C',
@@ -61,8 +62,25 @@ export const excelReaderProvider: Provider = {
       return rows;
     };
 
+    const writeRows = async (targetRow: number, ...args) => {
+      try {
+        const response = await sheets.spreadsheets.values.update({
+          spreadsheetId: '1QHdgdW6bAVw6EDcTC3odAeVSyq9vONBPJU47-pMwt-8',
+          range: `시트1!C${targetRow + 2}:G${targetRow + 2}`,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: {
+            values: [args],
+          },
+        });
+        return response.data?.updatedRows ?? 0;
+      } catch (err) {
+        console.error('writeRows:', err);
+        throw new Error('엑셀시트 업데이트 실패');
+      }
+    };
     return {
       readRows,
+      writeRows,
     };
   },
 };

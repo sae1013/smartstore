@@ -6,7 +6,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { AXIOS_INSTANCE } from '../common/http/axios.provider';
 import { EXCEL_READER } from '../common/excel/excel.provider';
 import type { ExcelReader } from '../common/excel/excel.provider';
-
+import type { GmailMailer } from 'src/common/email/gmail.provider';
 import {
   LastChangedStatus,
   OrderDetail,
@@ -14,6 +14,8 @@ import {
   OrderInfo,
 } from './types';
 import { parseProductOption } from '../common/utils';
+import { GMAIL_MAILER } from 'src/common/email/gmail.provider';
+import { genHtmlTemplate } from 'src/common/email/templates/template1';
 
 @Injectable()
 export class OrdersService {
@@ -23,6 +25,7 @@ export class OrdersService {
     private readonly configService: ConfigService,
     @Inject(AXIOS_INSTANCE) private readonly http: AxiosInstance,
     @Inject(EXCEL_READER) private readonly excelReader: ExcelReader,
+    @Inject(GMAIL_MAILER) private readonly gmailMailer: GmailMailer,
   ) {}
 
   /**
@@ -49,33 +52,54 @@ export class OrdersService {
     // 엑셀에서 가져온 row 데이터.
     const rows = await this.excelReader.readRows();
 
-    ordersInfo.forEach((orderInfo) => {
-      const { orderName, ordererId } = orderInfo.order;
+    for (const orderInfo of ordersInfo) {
+      const { ordererName, ordererId, ordererTel } = orderInfo.order;
       const { quantity, productName, productOption } = orderInfo.productOrder;
       const { amount, email } = parseProductOption(productOption);
-
+      let redeemCd = '';
+      
       // 보낼 상품의 타겟 행
       const targetRow = rows.findIndex((row) => {
         const rowAmt = row[0] as string;
-        const rowRedeemCd = row[1] as string;
+        redeemCd = row[1] as string;
         const useYn = row[2] as string;
 
         return (
-          rowAmt === amount && useYn.toLowerCase() === 'n' && rowRedeemCd.trim()
+          rowAmt === amount && useYn.toLowerCase() === 'n' && redeemCd.trim()
         );
       });
 
-      // TODO: 해당 이메일 주소로 리딤코드 발송
+      // 해당 이메일 주소로 리딤코드 발송
+      try {
+        await this.gmailMailer.send({
+          to: email,
+          html: genHtmlTemplate(ordererName, redeemCd) as string,
+          subject:
+            '[애플기프트샵][자동발송] 애플 인도 앱스토어 아이튠즈 기프트카드',
+        });
+      } catch (err) {
+        console.error('gmail sender Error:', err);
+        continue;
+      }
 
-      // TODO: 이메일 전송 성공시 targetRow 업데이트.
-    });
-
-    return ordersInfo;
+      try {
+        await this.excelReader.writeRows(
+          targetRow,
+          'y',
+          email,
+          ordererName,
+          ordererTel,
+          ordererId,
+        );
+      } catch (err) {
+        console.error(err);
+      }
+    }
   }
 
   async findLastChangedOrders(): Promise<string[]> {
     const params = {
-      lastChangedFrom: this.getLastChangedFrom(1440),
+      lastChangedFrom: this.getLastChangedFrom(1800),
     };
     try {
       const response = await this.http.get<

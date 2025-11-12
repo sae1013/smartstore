@@ -34,4 +34,10 @@ export class OrdersController {
     // this.ordersService.test();
     return 200;
   }
+
+  // @Get('/email')
+  // email() {
+  //   this.ordersService.gmail();
+  //   return 200;
+  // }
 }
