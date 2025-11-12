@@ -32,6 +32,9 @@ export class OrdersService {
    * 자동화의 시작지점
    */
   async processOrders() {
+    // 배송처리할 상품목록. 메일전송에 성공하면 채워넣는다.
+    const productOrderIdList: string[] = [];
+
     // STEP 1
     // 최근 주문목록들의 주문 ID 배열을 가져온다
     const paidOrderIds = await this.findLastChangedOrders();
@@ -54,10 +57,12 @@ export class OrdersService {
 
     for (const orderInfo of ordersInfo) {
       const { ordererName, ordererId, ordererTel } = orderInfo.order;
-      const { quantity, productName, productOption } = orderInfo.productOrder;
+      const { quantity, productName, productOption, productOrderId } =
+        orderInfo.productOrder;
       const { amount, email } = parseProductOption(productOption);
+
       let redeemCd = '';
-      
+
       // 보낼 상품의 타겟 행
       const targetRow = rows.findIndex((row) => {
         const rowAmt = row[0] as string;
@@ -77,6 +82,8 @@ export class OrdersService {
           subject:
             '[애플기프트샵][자동발송] 애플 인도 앱스토어 아이튠즈 기프트카드',
         });
+
+        productOrderIdList.push(productOrderId);
       } catch (err) {
         console.error('gmail sender Error:', err);
         continue;
@@ -94,12 +101,14 @@ export class OrdersService {
       } catch (err) {
         console.error(err);
       }
+
+      await this.postDeliveryProducts(productOrderIdList);
     }
   }
 
   async findLastChangedOrders(): Promise<string[]> {
     const params = {
-      lastChangedFrom: this.getLastChangedFrom(1800),
+      lastChangedFrom: this.getLastChangedFrom(180),
     };
     try {
       const response = await this.http.get<
@@ -149,6 +158,42 @@ export class OrdersService {
   }
 
   /**
+   * 상품발송처리
+   * @param productOrderIdList 상품 배열
+   */
+  async postDeliveryProducts(productOrderIdList) {
+    const dispatchProductOrders = productOrderIdList.map((orderId) => {
+      return {
+        productOrderId: orderId,
+        deliveryMethod: 'NOTHING',
+        deliveryCompanyCode: '',
+        trackingNumber: '',
+        dispatchDate: this.formatGMT9TimeZone(new Date()),
+      };
+    });
+
+    const payload = {
+      dispatchProductOrders,
+    };
+    try {
+      await this.http.post(
+        '/v1/pay-order/seller/product-orders/dispatch',
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      return true;
+    } catch (err) {
+      console.error('postDeliveryProducts:', err);
+      return false;
+    }
+  }
+
+  /**
    * N 분전 시간을 string으로변환
    * @param minutes
    * @private
@@ -162,5 +207,9 @@ export class OrdersService {
       'Asia/Seoul',
       "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
     );
+  }
+
+  private formatGMT9TimeZone(date: Date) {
+    return formatInTimeZone(date, 'Asia/Seoul', "yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
   }
 }

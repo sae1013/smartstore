@@ -32,6 +32,7 @@ export interface IOrderDetail {
 
 export interface IProductOrderDetail {
   quantity: number; // 2
+  productOrderId: string;
   productOrderStatus: string; // PAYED
   productOption: string; // 상품코드를 받으실 이메일: sae1013@gmail.com / 금액: 195 루피
   productName: string; // 애플 인도 앱스토어 아이튠즈 기프트카드 (리딤코드 발송)
