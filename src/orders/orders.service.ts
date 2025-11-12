@@ -54,19 +54,20 @@ export class OrdersService {
       const { quantity, productName, productOption } = orderInfo.productOrder;
       const { amount, email } = parseProductOption(productOption);
 
-      rows.forEach((row) => {
+      // 보낼 상품의 타겟 행
+      const targetRow = rows.findIndex((row) => {
         const rowAmt = row[0] as string;
         const rowRedeemCd = row[1] as string;
         const useYn = row[2] as string;
 
-        if (
-          String(amount) === String(rowAmt) &&
-          rowRedeemCd.trim() &&
-          useYn.toLowerCase() === 'n'
-        ) {
-          console.log(amount, email, rowRedeemCd);
-        }
+        return (
+          rowAmt === amount && useYn.toLowerCase() === 'n' && rowRedeemCd.trim()
+        );
       });
+
+      // TODO: 해당 이메일 주소로 리딤코드 발송
+
+      // TODO: 이메일 전송 성공시 targetRow 업데이트.
     });
 
     return ordersInfo;
