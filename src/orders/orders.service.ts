@@ -4,6 +4,9 @@ import type { AxiosInstance } from 'axios';
 import { subMinutes } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { AXIOS_INSTANCE } from '../common/http/axios.provider';
+import { EXCEL_READER } from '../common/excel/excel.provider';
+import type { ExcelReader } from '../common/excel/excel.provider';
+
 import {
   LastChangedStatus,
   OrderDetail,
@@ -14,9 +17,12 @@ import { parseProductOption } from '../common/utils';
 
 @Injectable()
 export class OrdersService {
+  ADMIN_EMAIL_ADDR = 'sae1013@gmail.com';
+
   constructor(
     private readonly configService: ConfigService,
     @Inject(AXIOS_INSTANCE) private readonly http: AxiosInstance,
+    @Inject(EXCEL_READER) private readonly excelReader: ExcelReader,
   ) {}
 
   /**
@@ -26,7 +32,8 @@ export class OrdersService {
     // STEP 1
     // 최근 주문목록들의 주문 ID 배열을 가져온다
     const paidOrderIds = await this.findLastChangedOrders();
-    if (!paidOrderIds.length) {
+
+    if (paidOrderIds.length < 1) {
       return;
     }
 
@@ -36,11 +43,30 @@ export class OrdersService {
     console.log('ordersInfo:', ordersInfo);
 
     // STEP 3
-    // orders info 를 순회한다.
+    // orders info 를 순회하면서, 엑셀파일을 읽고 해당 하는 상품이 있는 경우 메일을 발송한다.
+    // 만약 수량이 부족하면 관리자에게 메일을 보낸다.
+
+    // 엑셀에서 가져온 row 데이터.
+    const rows = await this.excelReader.readRows();
+
     ordersInfo.forEach((orderInfo) => {
       const { orderName, ordererId } = orderInfo.order;
       const { quantity, productName, productOption } = orderInfo.productOrder;
       const { amount, email } = parseProductOption(productOption);
+
+      rows.forEach((row) => {
+        const rowAmt = row[0] as string;
+        const rowRedeemCd = row[1] as string;
+        const useYn = row[2] as string;
+
+        if (
+          String(amount) === String(rowAmt) &&
+          rowRedeemCd.trim() &&
+          useYn.toLowerCase() === 'n'
+        ) {
+          console.log(amount, email, rowRedeemCd);
+        }
+      });
     });
 
     return ordersInfo;
@@ -48,7 +74,7 @@ export class OrdersService {
 
   async findLastChangedOrders(): Promise<string[]> {
     const params = {
-      lastChangedFrom: this.getLastChangedFrom(720),
+      lastChangedFrom: this.getLastChangedFrom(1440),
     };
     try {
       const response = await this.http.get<

@@ -28,4 +28,10 @@ export class OrdersController {
       },
     };
   }
+
+  @Get('excel')
+  excel() {
+    // this.ordersService.test();
+    return 200;
+  }
 }
