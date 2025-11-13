@@ -1,6 +1,7 @@
 services:
   smartstore:
-    image: smartstore:latest
+    image: minwoojungdev/smartstore:latest
+    restart: unless-stopped
     build:
       context: .
       target: runner
