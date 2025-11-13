@@ -1,0 +1,13 @@
+services:
+  smartstore:
+    image: smartstore:latest
+    build:
+      context: .
+      target: runner
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      - .env.docker
+
+    environment:
+      NODE_ENV: production

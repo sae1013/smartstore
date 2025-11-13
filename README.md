@@ -39,15 +39,18 @@ Copy the sample file and adjust values to match your environment.
 $ cp .env.example .env
 ```
 
-The application currently reads `PORT` to decide which port to bind in `start`/`start:dev` mode.
+For containerized deployments, duplicate the Docker sample as well and keep the real file out of git:
 
-Additional keys used by feature modules:
+```bash
+$ cp .env.docker.example .env.docker
+```
 
-- `ORDERS_LIST_LIMIT`: limits the number of in-memory orders returned when no remote source is configured.
-- `ORDERS_API_URL`: base URL used by the shared Axios client (`OrdersService` and others).
-- `ORDERS_REMOTE_ENABLED`: set to `true` to fetch orders from the remote API instead of the in-memory list.
-- `ORDERS_REMOTE_PATH`: path (relative to `ORDERS_API_URL`) fetched when remote calls are enabled.
-- `HTTP_TIMEOUT_MS`: request timeout (ms) for the shared Axios client.
+Both runtime modes expect the following variables:
+
+- `PORT`: HTTP port the Nest app listens on.
+- `STORE_APP_ID`, `STORE_APP_SECRET`: SmartStore API credentials.
+- `GOOGLE_SMTP_APP_ID`, `GOOGLE_SMTP_USER`: Gmail SMTP (app password) pair used by the mailer.
+- `GOOGLE_PRIVATE_KEY`, `GOOGLE_CLIENT_EMAIL`: Google Service Account fields used for spreadsheet access.
 
 ## Compile and run the project
 
@@ -77,16 +80,24 @@ $ yarn run test:cov
 
 ## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Docker Compose workflow
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+1. Build an application image (multi-stage Dockerfile) and keep secrets outside the image by referencing `.env.docker`.
+2. Start the container through Compose to expose the HTTP port defined in your env file.
 
 ```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
+$ cp .env.docker.example .env.docker  # fill in real values
+$ docker compose build smartstore
+$ docker compose up -d smartstore
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Compose maps `${PORT:-3000}` on the host to the container's port `3000`, so updating `PORT` in `.env.docker` is enough to expose a different host port without editing the YAML. Shutdown is simply:
+
+```bash
+$ docker compose down
+```
+
+The image that `docker compose build` generates can be pushed to any registry. Once pushed, swap the `build` block with an `image: <registry>/smartstore:tag` entry to pull and run the uploaded image.
 
 ## Resources
 
