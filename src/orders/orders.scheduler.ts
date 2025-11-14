@@ -8,7 +8,7 @@ export class OrdersScheduler {
 
   constructor(private readonly ordersService: OrdersService) {}
 
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron('*/3 * * * *')
   async handleAutoProcess(): Promise<void> {
     this.logger.log('Running scheduled order processing');
     try {
