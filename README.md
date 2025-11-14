@@ -51,6 +51,7 @@ Both runtime modes expect the following variables:
 - `STORE_APP_ID`, `STORE_APP_SECRET`: SmartStore API credentials.
 - `GOOGLE_SMTP_APP_ID`, `GOOGLE_SMTP_USER`: Gmail SMTP (app password) pair used by the mailer.
 - `GOOGLE_PRIVATE_KEY`, `GOOGLE_CLIENT_EMAIL`: Google Service Account fields used for spreadsheet access.
+- `ORDERS_AUTO_PROCESS_CRON`: Cron expression (e.g. `*/3 * * * *`) that controls how often pending orders are processed.
 
 ## Compile and run the project
 
