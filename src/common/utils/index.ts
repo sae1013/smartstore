@@ -10,7 +10,7 @@ export const NAVER_COMMERCE_API = {
 
 export const parseProductOption = (optionText: string) => {
   const re =
-    /이메일\s*:\s*(?<email>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\s*\/\s*금액\s*:\s*(?<amount>[\d,]+)/u;
+    /이메일(?:\s*\([^)]*\))?\s*:\s*(?<email>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\s*\/\s*금액\s*:\s*(?<amount>[\d,]+)/u;
 
   const m = optionText.match(re);
   let email = '';
