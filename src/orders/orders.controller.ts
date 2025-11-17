@@ -35,6 +35,12 @@ export class OrdersController {
     return 200;
   }
 
+  @Get('sms')
+  sendSMS() {
+    this.ordersService.sendSMS('01083619220', '안녕하세요.');
+    return 200;
+  }
+
   // @Get('/email')
   // email() {
   //   this.ordersService.gmail();

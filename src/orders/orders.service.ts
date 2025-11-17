@@ -15,7 +15,8 @@ import {
 } from './types';
 import { parseProductOption } from '../common/utils';
 import { GMAIL_MAILER } from 'src/common/email/gmail.provider';
-import { genHtmlTemplate } from 'src/common/email/templates/template1';
+// import { genHtmlTemplate } from 'src/common/email/templates/template1';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class OrdersService {
@@ -59,7 +60,7 @@ export class OrdersService {
       const { ordererName, ordererId, ordererTel } = orderInfo.order;
       const { quantity, productName, productOption, productOrderId } =
         orderInfo.productOrder;
-      const { amount, email } = parseProductOption(productOption);
+      const { amount } = parseProductOption(productOption);
 
       let redeemCd = '';
 
@@ -74,26 +75,34 @@ export class OrdersService {
         );
       });
 
-      // 해당 이메일 주소로 리딤코드 발송
       try {
-        await this.gmailMailer.send({
-          to: email,
-          html: genHtmlTemplate(ordererName, redeemCd) as string,
-          subject:
-            '[애플기프트샵][자동발송] 애플 인도 앱스토어 아이튠즈 기프트카드',
-        });
-
-        productOrderIdList.push(productOrderId);
+        await this.sendSMS(
+          ordererTel,
+          `애플기프트샵 입니다. ${amount}루피 코드:\n ${redeemCd} \n감사합니다.`,
+        );
       } catch (err) {
-        console.error('gmail sender Error:', err);
-        continue;
+        console.error(err);
       }
+      // // 해당 이메일 주소로 리딤코드 발송
+      // try {
+      //   await this.gmailMailer.send({
+      //     to: email,
+      //     html: genHtmlTemplate(ordererName, redeemCd) as string,
+      //     subject:
+      //       '[애플기프트샵][자동발송] 애플 인도 앱스토어 아이튠즈 기프트카드',
+      //   });
+      //
+      //   productOrderIdList.push(productOrderId);
+      // } catch (err) {
+      //   console.error('gmail sender Error:', err);
+      //   continue;
+      // }
 
       try {
         await this.excelReader.writeRows(
           targetRow,
           'y',
-          email,
+          '이메일 없음',
           ordererName,
           ordererTel,
           ordererId,
@@ -211,5 +220,48 @@ export class OrdersService {
 
   private formatGMT9TimeZone(date: Date) {
     return formatInTimeZone(date, 'Asia/Seoul', "yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+  }
+
+  async sendSMS(customerNumber: string, text: string) {
+    function generateSignature(apiSecret, dateTime, salt) {
+      const data = dateTime + salt;
+      return crypto.createHmac('sha256', apiSecret).update(data).digest('hex');
+    }
+
+    //	"""Authorization 헤더 생성"""
+    function createAuthHeader(apiKey, apiSecret) {
+      const dateTime = new Date().toISOString();
+      const salt = crypto.randomBytes(16).toString('hex');
+      const signature = generateSignature(apiSecret, dateTime, salt);
+
+      return `HMAC-SHA256 apiKey=${apiKey}, date=${dateTime}, salt=${salt}, signature=${signature}`;
+    }
+
+    const apiKey = this.configService.get('SOLAPI_KEY') as string;
+    const apiSecret = this.configService.get('SOLAPI_SECRET') as string;
+
+    const authHeader = createAuthHeader(apiKey, apiSecret);
+    const reqUrl = 'https://api.solapi.com/messages/v4/send-many/detail';
+    const reqParam = {
+      messages: [
+        {
+          from: '010-8361-9220',
+          to: customerNumber,
+          text: text,
+        },
+      ],
+    };
+
+    try {
+      const response = await this.http.post(reqUrl, reqParam, {
+        headers: {
+          'x-skip-auth': true,
+          Authorization: authHeader,
+        },
+      });
+      return 200;
+    } catch (err) {
+      console.log(err);
+    }
   }
 }
