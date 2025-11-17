@@ -80,6 +80,7 @@ export class OrdersService {
           ordererTel,
           `애플기프트샵 입니다. ${amount}루피 코드:\n ${redeemCd} \n감사합니다.`,
         );
+        productOrderIdList.push(productOrderId);
       } catch (err) {
         console.error(err);
       }
