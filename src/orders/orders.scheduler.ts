@@ -47,7 +47,7 @@ export class OrdersScheduler implements OnModuleInit, OnModuleDestroy {
   }
 
   async handleAutoProcess(): Promise<void> {
-    this.logger.log('Running scheduled order processing');
+    // this.logger.log('Running scheduled order processing');
     try {
       await this.ordersService.processOrders();
     } catch (error) {
