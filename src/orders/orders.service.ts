@@ -15,6 +15,7 @@ import {
 } from './types';
 import { parseProductOption } from '../common/utils';
 import { GMAIL_MAILER } from 'src/common/email/gmail.provider';
+import { NAVER_MAILER, NaverMailer } from 'src/common/email/naverMail.provider';
 // import { genHtmlTemplate } from 'src/common/email/templates/template1';
 import * as crypto from 'crypto';
 
@@ -27,7 +28,30 @@ export class OrdersService {
     @Inject(AXIOS_INSTANCE) private readonly http: AxiosInstance,
     @Inject(EXCEL_READER) private readonly excelReader: ExcelReader,
     @Inject(GMAIL_MAILER) private readonly gmailMailer: GmailMailer,
+    @Inject(NAVER_MAILER) private readonly naverMailer,
   ) {}
+
+  /**
+   * 이메일 발송테스트
+   */
+  async sendNaverMail() {
+    await this.naverMailer.send({
+      to: 'sae1013@gmail.com',
+      subject: '발송테스트',
+      html: '<div>안녕하세요</div>',
+    });
+  }
+
+  /**
+   * 지메일 발송
+   */
+  async sendGmail() {
+    await this.gmailMailer.send({
+      to: 'sae1013@gmail.com',
+      subject: '발송테스트',
+      html: '<div>안녕하세요</div>',
+    });
+  }
 
   /**
    * 자동화의 시작지점
