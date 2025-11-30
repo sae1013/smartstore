@@ -81,63 +81,59 @@ export class OrdersService {
     const rows = await this.excelReader.readRows();
 
     for (const orderInfo of ordersInfo) {
-      const { ordererName, ordererId, ordererTel } = orderInfo.order;
-      const { quantity, productName, productOption, productOrderId } =
-        orderInfo.productOrder;
+      const { ordererName, ordererId } = orderInfo.order;
+      const {
+        quantity,
+        productOption,
+        productOrderId,
+        shippingAddress: { tel1 },
+      } = orderInfo.productOrder;
       const { amount } = parseProductOption(productOption);
 
       let redeemCd = '';
 
-      // 보낼 상품의 타겟 행
-      const targetRow = rows.findIndex((row) => {
-        const rowAmt = row[0] as string;
-        redeemCd = row[1] as string;
-        const useYn = row[2] as string;
+      for (let i = 0; i < quantity; i++) {
+        // 보낼 상품의 타겟 행
+        const targetRow = rows.findIndex((row) => {
+          const rowAmt = row[0] as string;
+          redeemCd = row[1] as string;
+          const useYn = row[2] as string;
 
-        return (
-          rowAmt === amount && useYn.toLowerCase() === 'n' && redeemCd.trim()
-        );
-      });
+          return (
+            rowAmt === amount && useYn.toLowerCase() === 'n' && redeemCd.trim()
+          );
+        });
 
-      try {
-        await this.sendSMS(
-          ordererTel,
-          `애플기프트샵 입니다. ${amount}루피 코드:\n ${redeemCd} \n감사합니다.`,
-        );
-        productOrderIdList.push(productOrderId);
-      } catch (err) {
-        console.error(err);
+        // 문자발송
+        try {
+          await this.sendSMS(
+            tel1,
+            `애플기프트샵 입니다. ${amount}루피 코드:\n ${redeemCd} \n감사합니다.`,
+          );
+          // 배송처리 할 리스트에 담기.
+          if (!productOrderIdList.includes(productOrderId)) {
+            productOrderIdList.push(productOrderId);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+        // 엑셀 업데이트
+        try {
+          await this.excelReader.writeRows(
+            targetRow,
+            'y',
+            '이메일 없음',
+            ordererName,
+            tel1,
+            ordererId,
+          );
+        } catch (err) {
+          console.error(err);
+        }
       }
-      // // 해당 이메일 주소로 리딤코드 발송
-      // try {
-      //   await this.gmailMailer.send({
-      //     to: email,
-      //     html: genHtmlTemplate(ordererName, redeemCd) as string,
-      //     subject:
-      //       '[애플기프트샵][자동발송] 애플 인도 앱스토어 아이튠즈 기프트카드',
-      //   });
-      //
-      //   productOrderIdList.push(productOrderId);
-      // } catch (err) {
-      //   console.error('gmail sender Error:', err);
-      //   continue;
-      // }
-
-      try {
-        await this.excelReader.writeRows(
-          targetRow,
-          'y',
-          '이메일 없음',
-          ordererName,
-          ordererTel,
-          ordererId,
-        );
-      } catch (err) {
-        console.error(err);
-      }
-
-      await this.postDeliveryProducts(productOrderIdList);
     }
+    // 문자발송 및 엑셀 업데이트 이후 최종 발송처리
+    await this.postDeliveryProducts(productOrderIdList);
   }
 
   async findLastChangedOrders(): Promise<string[]> {
