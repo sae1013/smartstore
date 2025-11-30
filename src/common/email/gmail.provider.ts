@@ -1,7 +1,6 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { SendMailOptions, Transporter } from 'nodemailer';
-import * as nodemailer from 'nodemailer';
+import nodemailer, { SendMailOptions, Transporter } from 'nodemailer';
 
 export interface GmailMessageOption {
   to: string | string[];
@@ -35,7 +34,6 @@ export const gmailProvider: Provider = {
       throw new Error('GOOGLE_SMTP_APP_ID is not configured');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
     const transporter: Transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,

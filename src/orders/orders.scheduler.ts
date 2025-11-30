@@ -27,7 +27,7 @@ export class OrdersScheduler implements OnModuleInit, OnModuleDestroy {
       '*/5 * * * *';
 
     this.cronJob = new CronJob(cronExpression, () => {
-      // void this.handleAutoProcess();
+      void this.handleAutoProcess();
     });
 
     this.schedulerRegistry.addCronJob(this.jobName, this.cronJob);
@@ -47,7 +47,7 @@ export class OrdersScheduler implements OnModuleInit, OnModuleDestroy {
   }
 
   async handleAutoProcess(): Promise<void> {
-    this.logger.log('Running scheduled order processing');
+    // this.logger.log('Running scheduled order processing');
     try {
       await this.ordersService.processOrders();
     } catch (error) {

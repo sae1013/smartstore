@@ -46,15 +46,4 @@ export class OrdersController {
   //   this.ordersService.gmail();
   //   return 200;
   // }
-  @Get('naver/email')
-  sendNaverEmail() {
-    this.ordersService.sendNaverMail();
-    return 200;
-  }
-
-  @Get('gmail/email')
-  sendGmail(){
-    this.ordersService.sendGmail();
-    return 200
-  }
 }
