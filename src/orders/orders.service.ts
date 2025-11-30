@@ -53,9 +53,6 @@ export class OrdersService {
     // orders info 를 순회하면서, 엑셀파일을 읽고 해당 하는 상품이 있는 경우 메일을 발송한다.
     // 만약 수량이 부족하면 관리자에게 메일을 보낸다.
 
-    // 엑셀에서 가져온 row 데이터.
-    const rows = await this.excelReader.readRows();
-
     for (const orderInfo of ordersInfo) {
       const { ordererName, ordererId } = orderInfo.order;
       const {
@@ -69,6 +66,8 @@ export class OrdersService {
       let redeemCd = '';
 
       for (let i = 0; i < quantity; i++) {
+        // 엑셀에서 가져온 row 데이터.
+        const rows = await this.excelReader.readRows();
         // 보낼 상품의 타겟 행
         const targetRow = rows.findIndex((row) => {
           const rowAmt = row[0] as string;
