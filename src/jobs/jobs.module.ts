@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { OrdersModule } from '../orders/orders.module';
-import { JobsService } from './jobs.service';
+import { JobsScheduler } from './jobs.scheduler';
 
 @Module({
   imports: [OrdersModule],
-  providers: [JobsService],
+  providers: [JobsScheduler],
 })
 export class JobsModule {}
