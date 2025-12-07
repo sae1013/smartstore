@@ -1,14 +1,20 @@
 // 엑셀에서 조회 , 재고 업데이트
-// /v1/products/origin-products/:originProductNo/option-stock , originProductNo 12650488610
+// /v1/products/origin-products/:originProductNo/option-stock , originProductNo 12650488610 , 53712097198 , channel product No 12707577730
 import { Controller, Get, Post } from '@nestjs/common';
 import { StockService } from './stock.service';
+import { ORIGINAL_PRODUCT_ID } from './const/optionMapper';
 
 @Controller()
 export class StockController {
   constructor(private readonly stockService: StockService) {}
 
   @Get('/stocks')
-  getStock() {}
-  @Post()
-  updateStock() {}
+  getStock() {
+    this.stockService.getStockByOptions();
+  }
+
+  @Get('/stocks/update-option')
+  updateStock() {
+    this.stockService.updateOptionStock();
+  }
 }

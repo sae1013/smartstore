@@ -21,21 +21,21 @@ export class JobsScheduler implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   onModuleInit(): void {
-    const cronServiceType =
-      this.configService.get<string>('cronServiceType') ?? '';
-
-    switch (cronServiceType) {
-      case 'auto-post':
-        this.registerAutomationJob();
-        break;
-      case 'auto-stock-scale':
-        break;
-      default:
-        this.logger.warn(
-          `No cron job configured for service type: ${cronServiceType}`,
-        );
-        break;
-    }
+    // const cronServiceType =
+    //   this.configService.get<string>('cronServiceType') ?? '';
+    //
+    // switch (cronServiceType) {
+    //   case 'auto-post':
+    //     this.registerAutomationJob();
+    //     break;
+    //   case 'auto-stock-scale':
+    //     break;
+    //   default:
+    //     this.logger.warn(
+    //       `No cron job configured for service type: ${cronServiceType}`,
+    //     );
+    //     break;
+    // }
   }
 
   onModuleDestroy(): void {
