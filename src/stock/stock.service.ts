@@ -1,1 +1,6 @@
-export class StockService {}
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class StockService {
+  constructor() {}
+}

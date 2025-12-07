@@ -46,7 +46,10 @@ export class OrdersService {
 
     // STEP 2
     // 결제된 항목들의 Order List를 가져온다.
-    const ordersInfo: OrderDetail[] = await this.getOrdersInfo(paidOrderIds);
+    const ordersInfo: OrderDetail[] = await this.getOrdersInfo(
+      paidOrderIds,
+      '12707577730',
+    );
     console.log('ordersInfo:', ordersInfo);
 
     // STEP 3
@@ -141,7 +144,10 @@ export class OrdersService {
    * 상품 상세조회
    * @param productOrderIds
    */
-  async getOrdersInfo(productOrderIds: string[]): Promise<OrderDetail[] | []> {
+  async getOrdersInfo(
+    productOrderIds: string[],
+    productId: string,
+  ): Promise<OrderDetail[] | []> {
     const payload = {
       productOrderIds,
     };
@@ -155,7 +161,10 @@ export class OrdersService {
           },
         },
       );
-      return response.data.data || [];
+      const orders = response.data.data || [];
+      return orders.filter((order) => {
+        return order.productOrder.productId === productId;
+      });
     } catch (err) {
       console.error(err);
       return [];
