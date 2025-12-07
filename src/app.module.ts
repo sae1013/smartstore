@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { JobsModule } from './jobs/jobs.module';
+import { StockModule } from './stock/stock.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { JobsModule } from './jobs/jobs.module';
     }),
     ScheduleModule.forRoot(),
     OrdersModule,
+    StockModule,
     AuthModule,
     JobsModule,
   ],
