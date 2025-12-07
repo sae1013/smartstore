@@ -37,6 +37,7 @@ export interface IProductOrderDetail {
   productOption: string; // 상품코드를 받으실 이메일: sae1013@gmail.com / 금액: 195 루피
   productName: string; // 애플 인도 앱스토어 아이튠즈 기프트카드 (리딤코드 발송)
   productId: string; // 채널 상품 ID 12707577730
+  originalProductId: string; // 12650488610
   shippingAddress: {
     tel1: string; // 수신자 번호
   };

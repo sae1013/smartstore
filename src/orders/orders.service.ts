@@ -146,7 +146,7 @@ export class OrdersService {
    */
   async getOrdersInfo(
     productOrderIds: string[],
-    productId: string,
+    originalProductId: string,
   ): Promise<OrderDetail[] | []> {
     const payload = {
       productOrderIds,
@@ -163,7 +163,7 @@ export class OrdersService {
       );
       const orders = response.data.data || [];
       return orders.filter((order) => {
-        return order.productOrder.productId === productId;
+        return order.productOrder.originalProductId === originalProductId;
       });
     } catch (err) {
       console.error(err);
