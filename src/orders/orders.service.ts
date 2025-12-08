@@ -17,6 +17,7 @@ import { parseProductOption } from '../common/utils';
 import { GMAIL_MAILER } from 'src/common/email/gmail.provider';
 // import { genHtmlTemplate } from 'src/common/email/templates/template1';
 import * as crypto from 'crypto';
+import { ORIGINAL_PRODUCT_ID } from '../stock/const/optionMapper';
 
 @Injectable()
 export class OrdersService {
@@ -48,7 +49,7 @@ export class OrdersService {
     // 결제된 항목들의 Order List를 가져온다.
     const ordersInfo: OrderDetail[] = await this.getOrdersInfo(
       paidOrderIds,
-      '12707577730',
+      String(ORIGINAL_PRODUCT_ID),
     );
     console.log('ordersInfo:', ordersInfo);
 
