@@ -4,7 +4,11 @@ import { AXIOS_INSTANCE } from '../common/http/axios.provider';
 import type { AxiosInstance } from 'axios';
 import type { ExcelReader } from '../common/excel/excel.provider';
 import { EXCEL_READER } from '../common/excel/excel.provider';
-import { optionMapperByValue, ORIGINAL_PRODUCT_ID } from './const/optionMapper';
+import {
+  DEFAULT_PRICE,
+  optionMapperByValue,
+  ORIGINAL_PRODUCT_ID,
+} from './const/optionMapper';
 
 @Injectable()
 export class StockService {
@@ -38,15 +42,12 @@ export class StockService {
     const optionStockTable = await this.getStockByOptions();
     const bodyParam = {
       productSalePrice: {
-        salePrice: 2800,
+        salePrice: DEFAULT_PRICE,
       },
       optionInfo: {
         optionCombinations: Array.from(optionStockTable).map(([k, v]) => {
           return {
-            id: parseInt(
-              optionMapperByValue[k as keyof typeof optionMapperByValue].code,
-              10,
-            ),
+            id: optionMapperByValue[k as keyof typeof optionMapperByValue].id,
             stockQuantity: v,
             price:
               optionMapperByValue[k as keyof typeof optionMapperByValue]?.price,
@@ -57,15 +58,13 @@ export class StockService {
       },
     };
 
-    console.log('bodyParam', JSON.stringify(bodyParam));
     try {
-      await this.http.post(
+      await this.http.put(
         `/v1/products/origin-products/${ORIGINAL_PRODUCT_ID}/option-stock`,
         bodyParam,
         {
           headers: {
             'Content-Type': 'application/json',
-            Accept: 'application/json',
           },
         },
       );
