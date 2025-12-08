@@ -8,6 +8,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { CronJob } from 'cron';
 import { OrdersService } from '../orders/orders.service';
+import { StockService } from '../stock/stock.service';
 
 @Injectable()
 export class JobsScheduler implements OnModuleInit, OnModuleDestroy {
@@ -18,24 +19,26 @@ export class JobsScheduler implements OnModuleInit, OnModuleDestroy {
     private readonly ordersService: OrdersService,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly configService: ConfigService,
+    private readonly stockService: StockService,
   ) {}
 
   onModuleInit(): void {
-    // const cronServiceType =
-    //   this.configService.get<string>('cronServiceType') ?? '';
-    //
-    // switch (cronServiceType) {
-    //   case 'auto-post':
-    //     this.registerAutomationJob();
-    //     break;
-    //   case 'auto-stock-scale':
-    //     break;
-    //   default:
-    //     this.logger.warn(
-    //       `No cron job configured for service type: ${cronServiceType}`,
-    //     );
-    //     break;
-    // }
+    const cronServiceType =
+      this.configService.get<string>('CRON_SERVICE_TYPE') ?? '';
+
+    switch (cronServiceType) {
+      case 'auto-post':
+        this.registerAutomationJob();
+        break;
+      case 'auto-stock-scale':
+        this.registerStockJob();
+        break;
+      default:
+        this.logger.warn(
+          `No cron job configured for service type: ${cronServiceType}`,
+        );
+        break;
+    }
   }
 
   onModuleDestroy(): void {
@@ -69,23 +72,27 @@ export class JobsScheduler implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  // private registerStockJob(): void {
-  //   const cronExpression =
-  //     this.configService.get<string>('ORDERS_STOCK_CRON') ?? '';
-  //
-  //   if (!cronExpression) {
-  //     this.logger.warn('ORDERS_STOCK_CRON is not configured');
-  //     return;
-  //   }
-  //
-  //   this.registerCronJob({
-  //     name: 'auto-stock-scale',
-  //     cronExpression,
-  //     onTick: async () => {
-  //       this.logger.warn('Stock cron job handler is not implemented yet.');
-  //     },
-  //   });
-  // }
+  private registerStockJob(): void {
+    const cronExpression =
+      this.configService.get<string>('STOCK_AUTO_PROCESS_CRON') ?? '';
+
+    if (!cronExpression) {
+      this.logger.warn('ORDERS_STOCK_CRON is not configured');
+      return;
+    }
+
+    this.registerCronJob({
+      name: 'auto-stock-scale',
+      cronExpression,
+      onTick: async () => {
+        try {
+          await this.stockService.updateOptionStock();
+        } catch (e) {
+          this.logger.warn('Stock job cron Error:', e);
+        }
+      },
+    });
+  }
 
   private registerCronJob({
     name,
