@@ -1,5 +1,5 @@
 x-smartstore-service: &smartstore-service
-  image: minwoojungdev/smartstore:latest
+  image: minwoojungdev/smartstore-v2:latest
   restart: unless-stopped
   build:
     context: .
@@ -13,16 +13,12 @@ x-smartstore-env: &smartstore-env
 services:
   smartstore-auto-post:
     <<: *smartstore-service
-    ports:
-      - "${PORT_AUTO_POST:-3000}:3000"
     environment:
       <<: *smartstore-env
       CRON_SERVICE_TYPE: auto-post
 
   smartstore-auto-stock:
     <<: *smartstore-service
-    ports:
-      - "${PORT_AUTO_STOCK:-3001}:3000"
     environment:
       <<: *smartstore-env
       CRON_SERVICE_TYPE: auto-stock-scale
