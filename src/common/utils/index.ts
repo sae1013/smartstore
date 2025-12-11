@@ -9,12 +9,19 @@ export const NAVER_COMMERCE_API = {
 };
 
 export const parseProductOption = (optionText: string) => {
-  const re = /금액\s*:\s*(?<amount>\d[\d,]*)/u;
+  // 예: "금액: 1170 루피", "리라: 1,000 리라"
+  // 콜론(:) 뒤의 숫자와 단위를 캡쳐
+  const re = /:\s*(?<amount>\d[\d,]*)\s*(?<unit>[\p{L}]+)?/u;
 
   const m = optionText.match(re);
+
   let amount = '';
-  if (m) {
-    amount = m?.groups?.amount || '';
+  let unit = '';
+
+  if (m?.groups) {
+    amount = m.groups.amount ?? '';
+    unit = m.groups.unit ?? '';
   }
-  return { amount };
+
+  return { amount, unit };
 };

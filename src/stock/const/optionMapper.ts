@@ -4,7 +4,7 @@ import { ByProdCountry } from '../../common';
 export const ORIGINAL_PRODUCT_ID: ByProdCountry<number> = {
   itunes: {
     india: 12650488610,
-    turkey: 124412,
+    turkey: 12752749402,
   },
 };
 

@@ -2,8 +2,8 @@
 @clientId = REPLACE_WITH_STORE_APP_ID
 @timestamp = REPLACE_WITH_UNIX_TIMESTAMP_MS
 @clientSecretSign = REPLACE_WITH_BASE64_BCRYPT_SIGNATURE
-@accessToken = 31qjCKZ5aP2e31jsnluk8
-@lastChangedFrom = 2025-01-01T00:00:00+09:00
+@accessToken = 31qmt3lCwYh3eMaL2fQR1
+@lastChangedFrom = 2025-12-11T00:00:00+09:00
 @originalProductId = 12650488610
 @dispatchDate = 2025-01-01T12:00:00+09:00
 
