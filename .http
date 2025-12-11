@@ -1,0 +1,91 @@
+@baseUrl = https://api.commerce.naver.com/external
+@clientId = REPLACE_WITH_STORE_APP_ID
+@timestamp = REPLACE_WITH_UNIX_TIMESTAMP_MS
+@clientSecretSign = REPLACE_WITH_BASE64_BCRYPT_SIGNATURE
+@accessToken = 31qjCKZ5aP2e31jsnluk8
+@lastChangedFrom = 2025-01-01T00:00:00+09:00
+@originalProductId = 12650488610
+@dispatchDate = 2025-01-01T12:00:00+09:00
+
+### Request SmartStore access token
+# @name requestToken
+POST {{baseUrl}}/v1/oauth2/token
+Content-Type: application/json
+x-skip-auth: true
+
+{
+  "client_id": "{{clientId}}",
+  "timestamp": {{timestamp}},
+  "grant_type": "client_credentials",
+  "client_secret_sign": "{{clientSecretSign}}",
+  "type": "SELF"
+}
+
+### 최근 N분간 상태가 바뀐 주문 조회 (OrdersService.findLastChangedOrders)
+GET {{baseUrl}}/v1/pay-order/seller/product-orders/last-changed-statuses?lastChangedFrom={{lastChangedFrom}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### 주문 상세 조회 (OrdersService.getOrdersInfo)
+POST {{baseUrl}}/v1/pay-order/seller/product-orders/query
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "productOrderIds": [
+    "2025120851603931"
+  ]
+}
+
+### 주문 발송 처리 (OrdersService.postDeliveryProducts)
+POST {{baseUrl}}/v1/pay-order/seller/product-orders/dispatch
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "dispatchProductOrders": [
+    {
+      "productOrderId": "PRODUCT_ORDER_ID_1",
+      "deliveryMethod": "NOTHING",
+      "deliveryCompanyCode": "",
+      "trackingNumber": "",
+      "dispatchDate": "{{dispatchDate}}"
+    }
+  ]
+}
+
+### 상품옵션정보조회
+GET {{baseUrl}}/v2/products/origin-products/12752749402
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+Accept: application/json
+
+### 옵션/재고 업데이트 (StockService.updateOptionStock)
+PUT {{baseUrl}}/v1/products/origin-products/{{originalProductId}}/option-stock
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "productSalePrice": {
+    "salePrice": 3000
+  },
+  "optionInfo": {
+    "optionCombinations": [
+      {
+        "id": 53712097198,
+        "stockQuantity": 200,
+        "price": 0,
+        "usable": true
+      },
+      {
+        "id": 53712097199,
+        "stockQuantity": 200,
+        "price": 2370,
+        "usable": true
+      }
+    ]
+  }
+}
