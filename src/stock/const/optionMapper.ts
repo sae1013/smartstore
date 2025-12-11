@@ -1,6 +1,12 @@
 import { ByProdCountry } from '../../common';
 
-export const ORIGINAL_PRODUCT_ID: number = 12650488610;
+// export const ORIGINAL_PRODUCT_ID: number = 12650488610;
+export const ORIGINAL_PRODUCT_ID: ByProdCountry<number> = {
+  itunes: {
+    india: 12650488610,
+    turkey: 124412,
+  },
+};
 
 export type OptionCombination = {
   id: number;

@@ -18,17 +18,25 @@ import { GMAIL_MAILER } from 'src/common/email/gmail.provider';
 // import { genHtmlTemplate } from 'src/common/email/templates/template1';
 import * as crypto from 'crypto';
 import { ORIGINAL_PRODUCT_ID } from '../stock/const/optionMapper';
+import { Country, ProductType } from '../common';
 
 @Injectable()
 export class OrdersService {
   ADMIN_EMAIL_ADDR = 'sae1013@gmail.com';
+  private readonly prodType: ProductType;
+  private readonly country: Country<typeof this.prodType>;
 
   constructor(
     private readonly configService: ConfigService,
     @Inject(AXIOS_INSTANCE) private readonly http: AxiosInstance,
     @Inject(EXCEL_READER) private readonly excelReader: ExcelReader,
     @Inject(GMAIL_MAILER) private readonly gmailMailer: GmailMailer,
-  ) {}
+  ) {
+    this.prodType = this.configService.get('PRODUCT_TYPE') as ProductType;
+    this.country = this.configService.get('COUNTRY') as Country<
+      typeof this.prodType
+    >;
+  }
 
   /**
    * 자동화의 시작지점
@@ -49,7 +57,7 @@ export class OrdersService {
     // 결제된 항목들의 Order List를 가져온다.
     const ordersInfo: OrderDetail[] = await this.getOrdersInfo(
       paidOrderIds,
-      String(ORIGINAL_PRODUCT_ID),
+      String(ORIGINAL_PRODUCT_ID[this.prodType][this.country]),
     );
     console.log('ordersInfo:', ordersInfo);
 
@@ -144,6 +152,7 @@ export class OrdersService {
   /**
    * 상품 상세조회
    * @param productOrderIds
+   * @param originalProductId 원상품번호
    */
   async getOrdersInfo(
     productOrderIds: string[],

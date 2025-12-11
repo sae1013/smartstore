@@ -50,6 +50,7 @@ export class StockService {
     const optionCombinations = OPTION_COMBINATIONS[productType][country]; // 재고 맵
 
     const optionMapperByValue = createOptionMapperByValue(optionCombinations);
+    const originalProductId = ORIGINAL_PRODUCT_ID[productType][country];
 
     const bodyParam = {
       productSalePrice: {
@@ -71,7 +72,7 @@ export class StockService {
 
     try {
       await this.http.put(
-        `/v1/products/origin-products/${ORIGINAL_PRODUCT_ID}/option-stock`,
+        `/v1/products/origin-products/${originalProductId}/option-stock`,
         bodyParam,
         {
           headers: {
