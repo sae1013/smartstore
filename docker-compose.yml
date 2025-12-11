@@ -9,16 +9,21 @@ x-smartstore-service: &smartstore-service
 
 x-smartstore-env: &smartstore-env
   NODE_ENV: production
+  TZ: Asia/Seoul
 
 services:
   smartstore-auto-post:
     <<: *smartstore-service
+    container_name:
+      post
     environment:
       <<: *smartstore-env
       CRON_SERVICE_TYPE: auto-post
 
   smartstore-auto-stock:
     <<: *smartstore-service
+    container_name:
+      stock
     environment:
       <<: *smartstore-env
       CRON_SERVICE_TYPE: auto-stock-scale
