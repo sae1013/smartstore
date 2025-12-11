@@ -73,7 +73,7 @@ export class OrdersService {
         productOrderId,
         shippingAddress: { tel1 },
       } = orderInfo.productOrder;
-      const { amount } = parseProductOption(productOption);
+      const { amount, unit } = parseProductOption(productOption);
 
       let redeemCd = '';
 
@@ -95,7 +95,7 @@ export class OrdersService {
         try {
           await this.sendSMS(
             tel1,
-            `애플기프트샵 입니다. ${amount}루피 코드:\n ${redeemCd} \n감사합니다.`,
+            `애플기프트샵 입니다. ${amount}${unit} 코드:\n ${redeemCd} \n감사합니다.`,
           );
           // 배송처리 할 리스트에 담기.
           if (!productOrderIdList.includes(productOrderId)) {
