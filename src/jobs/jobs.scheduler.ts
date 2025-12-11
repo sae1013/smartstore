@@ -25,6 +25,10 @@ export class JobsScheduler implements OnModuleInit, OnModuleDestroy {
   onModuleInit(): void {
     const cronServiceType =
       this.configService.get<string>('CRON_SERVICE_TYPE') ?? '';
+    const env = this.configService.get<string>('ENV') ?? 'DEV';
+    if (env === 'DEV') {
+      return;
+    }
 
     switch (cronServiceType) {
       case 'auto-post':

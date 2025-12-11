@@ -19,6 +19,8 @@ services:
     environment:
       <<: *smartstore-env
       CRON_SERVICE_TYPE: auto-post
+      PRODUCT_TYPE: itunes
+      COUNTRY: turkey
 
   smartstore-auto-stock:
     <<: *smartstore-service
@@ -27,3 +29,5 @@ services:
     environment:
       <<: *smartstore-env
       CRON_SERVICE_TYPE: auto-stock-scale
+      PRODUCT_TYPE: itunes
+      COUNTRY: turkey

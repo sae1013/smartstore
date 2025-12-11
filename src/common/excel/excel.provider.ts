@@ -1,6 +1,8 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { google, sheets_v4 } from 'googleapis';
+import { EXCEL_URL_BY_PROD_COUNTRY } from './variables';
+import { Country, ProductType } from '../index';
 
 export type ExcelCellValue =
   | string
@@ -47,6 +49,11 @@ export const excelReaderProvider: Provider = {
       scopes: SHEETS_SCOPES,
     });
 
+    const prodType = configService.get<string>('PRODUCT_TYPE') as ProductType;
+    const country = configService.get<string>('COUNTRY') as Country<
+      typeof prodType
+    >;
+    const spreadsheetId = EXCEL_URL_BY_PROD_COUNTRY[prodType][country];
     const sheets = google.sheets({
       version: 'v4',
       auth,
@@ -54,8 +61,8 @@ export const excelReaderProvider: Provider = {
 
     const readRows = async <T extends ExcelRow = ExcelRow>() => {
       const context = await sheets.spreadsheets.values.get({
-        spreadsheetId: '1QHdgdW6bAVw6EDcTC3odAeVSyq9vONBPJU47-pMwt-8',
-        range: '시트1!A2:C',
+        spreadsheetId: spreadsheetId,
+        range: '시트1!A2:C', // 시트 범위도 추후 수정
       });
 
       const rows = (context.data.values ?? []) as unknown as T[]; // 2차원 배열
@@ -65,7 +72,7 @@ export const excelReaderProvider: Provider = {
     const writeRows = async (targetRow: number, ...args) => {
       try {
         const response = await sheets.spreadsheets.values.update({
-          spreadsheetId: '1QHdgdW6bAVw6EDcTC3odAeVSyq9vONBPJU47-pMwt-8',
+          spreadsheetId: spreadsheetId,
           range: `시트1!C${targetRow + 2}:G${targetRow + 2}`,
           valueInputOption: 'USER_ENTERED',
           requestBody: {

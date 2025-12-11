@@ -7,6 +7,7 @@ import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { JobsModule } from './jobs/jobs.module';
 import { StockModule } from './stock/stock.module';
+import { ExcelModule } from './common/excel/excel.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { StockModule } from './stock/stock.module';
     StockModule,
     AuthModule,
     JobsModule,
+    ExcelModule,
   ],
   controllers: [AppController],
   providers: [AppService],

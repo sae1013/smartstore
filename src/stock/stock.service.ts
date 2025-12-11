@@ -5,10 +5,12 @@ import type { AxiosInstance } from 'axios';
 import type { ExcelReader } from '../common/excel/excel.provider';
 import { EXCEL_READER } from '../common/excel/excel.provider';
 import {
-  DEFAULT_PRICE,
-  optionMapperByValue,
+  BASE_PRICE,
+  createOptionMapperByValue,
+  OPTION_COMBINATIONS,
   ORIGINAL_PRODUCT_ID,
 } from './const/optionMapper';
+import { Country, ProductType } from '../common';
 
 @Injectable()
 export class StockService {
@@ -40,9 +42,18 @@ export class StockService {
 
   async updateOptionStock() {
     const optionStockTable = await this.getStockByOptions();
+    const productType = this.configService.get('PRODUCT_TYPE') as ProductType;
+    const country = this.configService.get('COUNTRY') as Country<
+      typeof productType
+    >;
+    // 1) 해당 상품/국가에 대한 옵션 리스트 가져오기
+    const optionCombinations = OPTION_COMBINATIONS[productType][country];
+
+    const optionMapperByValue = createOptionMapperByValue(optionCombinations);
+
     const bodyParam = {
       productSalePrice: {
-        salePrice: DEFAULT_PRICE,
+        salePrice: BASE_PRICE[productType][country],
       },
       optionInfo: {
         optionCombinations: Array.from(optionStockTable).map(([k, v]) => {
@@ -70,7 +81,6 @@ export class StockService {
       );
     } catch (e) {
       console.log(e);
-      console.error(e.message);
     }
   }
 }
