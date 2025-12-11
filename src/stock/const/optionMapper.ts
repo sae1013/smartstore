@@ -109,7 +109,35 @@ export const OPTION_COMBINATIONS: ByProdCountry<OptionCombination[]> = {
         sellerManagerCode: 'option9',
       },
     ],
-    turkey: [],
+    turkey: [
+      {
+        id: 54350439805,
+        stockQuantity: 3,
+        price: 0,
+        usable: true,
+        optionValue: '100',
+        optionName1: '100 리라',
+        sellerManagerCode: 'option1',
+      },
+      {
+        id: 54350439807,
+        stockQuantity: 3,
+        price: 5000,
+        usable: true,
+        optionValue: '500',
+        optionName1: '500 리라',
+        sellerManagerCode: 'option2',
+      },
+      {
+        id: 54350439809,
+        stockQuantity: 3,
+        price: 10000,
+        usable: true,
+        optionValue: '1000',
+        optionName1: '1000 리라',
+        sellerManagerCode: 'option3',
+      },
+    ],
   },
 };
 
