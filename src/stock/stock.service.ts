@@ -47,7 +47,7 @@ export class StockService {
       typeof productType
     >;
     // 1) 해당 상품/국가에 대한 옵션 리스트 가져오기
-    const optionCombinations = OPTION_COMBINATIONS[productType][country];
+    const optionCombinations = OPTION_COMBINATIONS[productType][country]; // 재고 맵
 
     const optionMapperByValue = createOptionMapperByValue(optionCombinations);
 
