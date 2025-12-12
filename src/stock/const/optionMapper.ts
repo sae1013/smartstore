@@ -20,7 +20,7 @@ export type OptionCombination = {
 export const BASE_PRICE: ByProdCountry<number> = {
   itunes: {
     india: 3000,
-    turkey: 4000,
+    turkey: 4300,
   },
 };
 
