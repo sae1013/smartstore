@@ -1,7 +1,7 @@
 ### 도커라이징(이미지)
 
 docker buildx build \
---platform linux/amd64,linux/arm64 \
+--platform linux/amd64 \
 -t minwoojungdev/smartstore:latest \
 --push \
 .

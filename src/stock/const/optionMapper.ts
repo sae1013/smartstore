@@ -122,7 +122,7 @@ export const OPTION_COMBINATIONS: ByProdCountry<OptionCombination[]> = {
       {
         id: 54350439807,
         stockQuantity: 3,
-        price: 5000,
+        price: 17100,
         usable: true,
         optionValue: '500',
         optionName1: '500 리라',
@@ -131,7 +131,7 @@ export const OPTION_COMBINATIONS: ByProdCountry<OptionCombination[]> = {
       {
         id: 54350439809,
         stockQuantity: 3,
-        price: 10000,
+        price: 38600,
         usable: true,
         optionValue: '1000',
         optionName1: '1000 리라',
