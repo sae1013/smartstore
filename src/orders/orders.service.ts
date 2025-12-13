@@ -60,7 +60,7 @@ export class OrdersService {
       String(ORIGINAL_PRODUCT_ID[this.prodType][this.country]),
     );
     console.log('ordersInfo:', ordersInfo);
-
+    if (ordersInfo.length < 1) return;
     // STEP 3
     // orders info 를 순회하면서, 엑셀파일을 읽고 해당 하는 상품이 있는 경우 메일을 발송한다.
     // 만약 수량이 부족하면 관리자에게 메일을 보낸다.
