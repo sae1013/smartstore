@@ -1,4 +1,5 @@
-@baseUrl = https://api.commerce.naver.com/external
+#@baseUrl = https://api.commerce.naver.com/external
+@baseUrl = http://3.34.197.105
 @clientId = REPLACE_WITH_STORE_APP_ID
 @timestamp = REPLACE_WITH_UNIX_TIMESTAMP_MS
 @clientSecretSign = REPLACE_WITH_BASE64_BCRYPT_SIGNATURE
