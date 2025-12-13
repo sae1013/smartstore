@@ -1,5 +1,5 @@
 export const NAVER_COMMERCE_API = {
-  BASE_URL: 'https://api.commerce.naver.com/external',
+  BASE_URL: 'http://3.34.197.105',
   AUTH: {
     TOKEN_URL: '/v1/oauth2/token',
   },
